@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<h2 class="text-center">Dashboard</h2>
+<h2 id="timer" class="text-center"></h2>
+<p id="timeout" class="text-center hidden">You can not bet, Your session will time out in few seconds. Wait for your bet result. Please <a onclick="location.href='@Url.Action("Login","Account")'">login</a> again to bet.</p>
+<h2 id="winAmount" class="text-center"></h2>
+<div>
+    <form id="frmBet">
+        <div class="row">
+            @for (int i = 1; i < 10; i++)
+            {
+                <div class="row">
+                    <div class="col-lg-3 form-group">
+                        <input type="button" id="btnNumber_@i" name="btnNumber_@i" value="Number @i" onclick="ShowText(@i)" />
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <input class="hidden" type="text" id="txtAmount_@i" name="txtAmount_@i" />
+                    </div>
+                </div>
+
+            }
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <input type="button" id="btnSaveBet" name="btnSaveBet" value="Submit" onclick="SaveBet()"/>
+            </div>
+        </div>
+    </form>
+    
+</div>
+
+<script type="text/javascript">
+
+    var countDownDate = 90;
+    var x = setInterval(function () {                
+        var distance = countDownDate;        
+        
+        var minutes = Math.floor((distance / 60));
+        var seconds = Math.floor(minutes > 0 ? (distance - (minutes * 60)) : distance);
+        
+        document.getElementById("timer").innerHTML = minutes + "m " + seconds + "s ";        
+        if (distance == 0) {
+            GetWinner();
+            //clearInterval(x);
+            //document.getElementById("timer").innerHTML = "EXPIRED";
+        }
+
+        countDownDate = countDownDate - 1;
+    }, 1000);
+
+    function ShowText(i) {
+        $('#txtAmount_' + i).removeClass('hidden');
+    }
+
+    function SaveBet() {
+        var Bet = [];        
+        $.each($('#frmBet').serializeArray(), function (i, value) {
+            var tempjson = {};
+            var Number = value.name.split('_')[1];
+
+            tempjson = {
+                "BetNumber" : Number,
+                "BetAmount" : value.value
+            }
+
+            Bet.push(tempjson);
+        });
+
+        //Bet = JSON.stringify({ 'bets': Bet });
+
+        $.ajax({
+            url: "../Home/SaveBet",
+            type: "POST",
+            dataType: "json",
+            data: { bets: Bet},
+            success: function (data) {
+                if (data.IsValid) {
+                    alert("Data saved successfully");
+                    location.reload();
+                }
+                else {
+                    alert("Something went wrong, Please try again letter");
+                }
+            },
+            error: function (error) {
+                alert("Something went wrong, Please try again letter");
+                location.reload();
+            }
+        });
+
+    }
+
+    function GetWinner() {
+        $('#btnSaveBet').prop('disabled', true);
+        $('#btnSaveBet').remove();
+        $('#timeout').removeClass('hidden');
+
+        var Number = 0;
+        var TotalAmount = 0;
+
+        $.ajax({
+            url: "../Home/GetWinner",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                if (data.Number > 0 && data.Amount > 0) {
+                    document.getElementById("winAmount").innerHTML = "You won :" + data.Amount;        
+                }
+                else {
+                    document.getElementById("winAmount").innerHTML = "You Lost";
+                }
+            },
+            error: function (error) {
+                alert("Something went wrong, Please try again letter");
+                location.reload();
+            }
+        });
+    }
+</script>

@@ -1,0 +1,169 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<link href="~/Content/Site.css" rel="stylesheet" />
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+</head>
+<body>
+    <div id="divLogin">
+        <div class="row">
+            <form class="" id="frmLogin">
+                <div class="row">
+                    <h3 class="text-center">Login</h3>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input type="text" id="txtUserName" name="txtUserName" placeholder="User Name" required="required" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center form-group">
+                        <input type="password" id="txtPassword" name="txtPassword" placeholder="Password" required="required" />
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <button type="button" id="btnLogin" name="btnLogin" onclick="Login()">Login</button>
+                    <button type="button" id="btnRegsiter" name="btnRegister" onclick="ShowRegister()">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="divRegister" class="hidden">
+        <div class="row">
+            <form class="" id="frmRegister">
+                <div class="row">
+                    <h3 class="text-center">Login</h3>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input type="text" id="txtEmail" name="txtEmail" placeholder="Email" required="required" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-lg-12 form-group">
+                        <input type="password" id="txtPass" name="txtPass" placeholder="Password" required="required" />
+                    </div>
+                    <span id="passError" class="hidden text-center">Password not matched</span>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center form-group">
+                        <input type="password" id="txtconfirmPass" name="txtconfirmPass" placeholder="Password" required="required" />
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <button type="button" id="btnshowLogin" name="btnshowLogin" onclick="ShowLogin()">Login</button>
+                    <button type="button" id="btnSave" name="btnSave" onclick="Register()">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>    
+</body>
+</html>
+
+
+<script type="text/javascript">
+
+    function ShowLogin() {
+        $('#divLogin').removeClass('hidden');
+        $('#divRegister').addClass('hidden');
+        $('#passError').addClass('hidden');
+    }
+
+    function ShowRegister() {
+        $('#divLogin').addClass('hidden');
+        $('#divRegister').removeClass('hidden');
+        $('#passError').addClass('hidden');
+    }
+
+    function Register() {
+        $('#frmRegister').validate();
+        $('#passError').addClass('hidden');
+        var Password = $('#txtPass').val();
+        var ConfirmPassword = $('#txtconfirmPass').val();
+
+        if ($('#frmRegister').valid()) {
+            if (Password == ConfirmPassword) {
+                var data = {
+                    "Email": $('#txtEmail').val(),
+                    "Password": $('#txtPass').val()
+                };
+                $.ajax({
+                    url: "../Account/Register",
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (data.IsValid) {
+                            $('#txtEmail').val('')
+                            $('#txtPass').val('')
+                            $('#txtconfirmPass').val('')
+                            alert("Data saved successfully");
+                            $('#divLogin').removeClass('hidden');
+                            $('#divRegister').addClass('hidden');
+                            $('#passError').addClass('hidden');
+                        }
+                        else {
+                            alert("Something went wrong, Please try again letter");
+                            location.reload();
+                        }
+                    },
+                    error: function (error) {
+                        alert("Something went wrong, Please try again letter");
+                        location.reload();
+                    }
+                });
+            }
+            else {
+                $('#passError').removeClass('hidden');
+            }
+        }
+
+    }
+
+    function Login() {
+        $('#frmLogin').validate();
+
+        if ($('#frmLogin').valid()) {
+
+            var data = {
+                "Email": $('#txtUserName').val(),
+                "Password": $('#txtPassword').val()
+            };
+            $.ajax({
+                url: "../Account/Login",
+                type: "POST",
+                dataType: "json",
+                data: data,
+                success: function (data) {
+                    if (!data.IsValid) {
+                        alert("Invalid credentials");
+                        location.reload();
+                    }
+                    else {
+                        window.location.href = data.redirectToUrl;
+                    }
+                },
+                error: function (error) {
+                    alert("Something went wrong, Please try again letter");
+                    location.reload();
+                }
+            });
+        }
+    }
+
+</script>
