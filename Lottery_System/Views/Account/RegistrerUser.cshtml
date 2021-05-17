@@ -192,7 +192,7 @@
             $.ajax({
                 url: "../Account/Register",
                 type: "POST",
-                data: JSON.stringify(Form),
+                data: JSON.stringify(data),
                 dataType: "json",
                 contentType: "application/json",
                 success: function (data) {
@@ -201,12 +201,12 @@
                     }
                     else {
                         alert("Something went wrong, Please try again letter");
-                        location.reload();
+                        //location.reload();
                     }
                 },
                 error: function (error) {
                     alert("Something went wrong, Please try again letter");
-                    location.reload();
+                    //location.reload();
                 }
             });
         }
