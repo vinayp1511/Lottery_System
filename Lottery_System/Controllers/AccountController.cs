@@ -57,6 +57,24 @@ namespace Lottery_System.Controllers
             return Json(new { IsValid = IsValid }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public ActionResult RegistrerUser()
+        {
+            List<Country> lstCountry = new List<Country>();
 
+            lstCountry = _api.GetCountryList();
+
+            ViewBag.Country = lstCountry;
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetState(long Countryid)
+        {
+            List<State> lstState = new List<State>();
+
+            lstState = _api.GetStateList(Countryid);
+            return Json(new { lstState = lstState }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

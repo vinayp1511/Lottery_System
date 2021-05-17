@@ -1,0 +1,243 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<link href="~/Content/Site.css" rel="stylesheet" />
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<link href="~/Content/ui.dropdownchecklist.css" rel="stylesheet" />
+<script src="~/Scripts/ui.core.js"></script>
+<script src="~/Scripts/ui.dropdownchecklist.js"></script>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>RegistrerUser</title>
+</head>
+<body>
+    <div>
+        <div class="row">
+            <form class="" id="frmRegister">
+                <div class="row">
+                    <h3 class="text-center">Login</h3>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input style="width:100%" type="text" id="FirstName" name="FirstName" placeholder="First Name" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input style="width:100%" type="text" id="LastName" name="LastName" placeholder="Last Name" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input style="width:100%" type="text" id="Email" name="Email" placeholder="Email" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input style="width:100%" type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Phone Number" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <select style="width:100%" id="Country" name="Country" onchange="GetState()">
+                                <option value="">Select Country</option>
+                                @foreach (Lottery_System.Models.Country country in ViewBag.Country)
+                                {
+                                    <option value="@country.CountryId">@country.CountryName</option>
+                                }
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <select style="width:100%" id="State" name="State" disabled="disabled">
+                                <option value="">Select State</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">                            
+                            <select style="width:100%" id="Hobbie" name="Hobbie" multiple="multiple">                                
+                                <option value="Cricket">Cricket</option>                                
+                                <option value="Reading">Reading</option>                                
+                                <option value="Travelling">Travelling</option>                                
+                                <option value="Chess">Chess</option>                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <div class="form-group">
+                            <input type="radio" id="rdoMale" name="Gender" value="Male" />
+                            <label for="rdoMale">Male</label>
+                            <input type="radio" id="rdoFemale" name="Gender" value="Female" />
+                            <label for="rdoFemale">Female</label><br>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <button type="button" id="btnSave" name="btnSave" onclick="Register()">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    function FormValidate() {
+        $('#frmRegister').validate({
+            ignore: [],
+            rules: {
+                FirstName: {
+                    required: true
+                },
+                LastName: {
+                    required: true
+                },
+                Email: {
+                    required: true
+                },
+                PhoneNumber: {
+                    required: true
+                },
+                Country: {
+                    required: true
+                },
+                State: {
+                    required: true
+                },
+                Hobbie: {
+                    required: true
+                },
+                Gender: {
+                    required: true
+                },
+            },
+            message: {
+                FirstName: {
+                    required: "Please enter first name"
+                },
+                LastName: {
+                    required: "Please enter last name"
+                },
+                Email: {
+                    required: "Please enter email"
+                },
+                PhoneNumber: {
+                    required: "Please enter phone number"
+                },
+                Country: {
+                    required: "Please select country"
+                },
+                State: {
+                    required: "Please select state"
+                },
+                Hobbie: {
+                    required: "Please enter hobbie"
+                },
+                Gender: {
+                    required: "Please select gender"
+                }
+            },
+            errorPlacement: function (error, element) {
+                debugger;
+                error.insertAfter(element);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        FormValidate();
+
+        $("#Hobbie").dropdownchecklist();
+    });
+
+
+    function Register() {
+        $('#frmRegister').validate();
+
+        if ($('#frmRegister').valid()) {
+            var Form = $('#frmRegister').serializeArray();
+
+            var data = {};
+
+            var hobbie = '';
+            $.each(Form, function (i, item) {
+                debugger;
+                if (item.name == "Hobbie") {
+                    if (hobbie == '') {
+                        hobbie = item.value;
+                    }
+                    else {
+                        hobbie = hobbie + "," + item.value;
+                    }
+                }
+                else {
+                    data[item.name] = item.value;
+                }
+            });
+
+            data["Hobbie"] = hobbie;
+            
+            debugger
+            $.ajax({
+                url: "../Account/Register",
+                type: "POST",
+                data: JSON.stringify(Form),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.IsValid) {                        
+                        alert("Data saved successfully");                        
+                    }
+                    else {
+                        alert("Something went wrong, Please try again letter");
+                        location.reload();
+                    }
+                },
+                error: function (error) {
+                    alert("Something went wrong, Please try again letter");
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function GetState() {
+        var CountryId = $('#Country').val();
+
+        $.ajax({
+            url: "../Account/GetState",
+            type: "GET",
+            dataType: "json",
+            data: { CountryId: CountryId },
+            success: function (data) {
+                if (data != null) {
+                    $('#State').find('option').not(':first').remove();
+                    $.each(data.lstState, function (i, item) {
+                        $('#State').append($('<option>', {
+                            value: item.StateId,
+                            text: item.StateName
+                        }));
+                    });
+
+                    $('#State').prop('disabled', false);
+                }
+            },
+            error: function (error) {
+                alert("Something went wrong, Please try again letter");
+                location.reload();
+            }
+        });
+
+    }
+</script>

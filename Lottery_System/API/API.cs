@@ -261,5 +261,75 @@ namespace Lottery_System.API
             return winner;
         }
 
+        public List<Country> GetCountryList()
+        {
+            List<Country> listCountry = new List<Country>();
+
+            try
+            {
+                DataSet ds = new DataSet();
+                SqlConnection sqlcon = new SqlConnection(connection);
+                string storedprocedure = "Lottery_01_GetCountryList";
+                SqlCommand sqlcmd = new SqlCommand(storedprocedure, sqlcon);
+                sqlcmd.CommandType = CommandType.StoredProcedure;
+                sqlcon.Open();
+                SqlDataAdapter adapter = new SqlDataAdapter(sqlcmd);
+                
+                adapter.Fill(ds);
+
+                for(int i=0;i< ds.Tables[0].Rows.Count;i++)
+                {
+                    Country country = new Country();
+
+                    country.CountryId = Convert.ToInt64(ds.Tables[0].Rows[i]["CountryId"].ToString());
+                    country.CountryName = Convert.ToString(ds.Tables[0].Rows[i]["CountryName"].ToString());
+
+                    listCountry.Add(country);
+                }
+
+                sqlcon.Close();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return listCountry;
+        }
+
+        public List<State> GetStateList(long CountryId)
+        {
+            List<State> lstState = new List<State>();
+
+            try
+            {
+                DataSet ds = new DataSet();
+                SqlConnection sqlcon = new SqlConnection(connection);
+                string storedprocedure = "Lottery_01_GetStateList";
+                SqlCommand sqlcmd = new SqlCommand(storedprocedure, sqlcon);
+                sqlcmd.CommandType = CommandType.StoredProcedure;
+                sqlcon.Open();
+                SqlDataAdapter adapter = new SqlDataAdapter(sqlcmd);
+
+                sqlcmd.Parameters.AddWithValue("@CountryId", CountryId);
+                adapter.Fill(ds);
+
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    State state = new State();
+
+                    state.StateId = Convert.ToInt64(ds.Tables[0].Rows[i]["StateId"].ToString());
+                    state.StateName = Convert.ToString(ds.Tables[0].Rows[i]["StateName"].ToString());
+
+                    lstState.Add(state);
+                }
+
+                sqlcon.Close();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return lstState;
+        }
     }
 }
